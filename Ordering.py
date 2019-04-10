@@ -295,10 +295,10 @@ class Ordering(object):
         self.interface = interface  # 浏览器运行的方式：0 后台运行 1 前台运行
         self.totalFlush = 0
         self.startTime = time.time()
-        self.seat_list = {'商务座': 'SWZ_', '一等座': 'ZY_', '二等座': 'ZE_', '高级软卧':'GR_' , '软卧': 'RW_', '动卧': 'SRRB_',
+        self.seat_list = {'商务座': 'SWZ_', '一等座': 'ZY_', '二等座': 'ZE_', '高级软卧': 'GR_', '软卧': 'RW_', '动卧': 'SRRB_',
                           '硬卧': 'YW_', '软座': 'RZ_', '硬座': 'YZ_', '无座': 'WZ_', '其他': 'QT_'}
-        self.seat_codes = {'商务座': '9', '一等座': 'M', '二等座': 'O',  '高级软卧':'6', '软卧': '4', '动卧': 'F',
-                          '硬卧': '3', '软座': '2', '硬座': '1', '无座': '1'}
+        self.seat_codes = {'商务座': '9', '一等座': 'M', '二等座': 'O', '一等卧': 'I', '二等卧': 'J',  '高级软卧': '6', '软卧': '4', '动卧': 'F',
+                           '硬卧': '3', '软座': '2', '硬座': '1', '无座': '1'}
         self.state = state
 
         self.time_stamp = self.state[0].strip()
@@ -596,7 +596,8 @@ class Ordering(object):
                         '//*[@datatran="' + self.train_number + '"]')
                     current_ge = self.driver.find_elements_by_xpath(
                         '//*[@datatran="' + self.train_number + '"]/preceding-sibling::tr[1]')
-                    current_id = current_tr[0].get_attribute("id").split('_')[1]
+                    current_id = current_tr[0].get_attribute("id").split('_')[
+                        1]
 
                     id = self.seat_list[self.seat_chosed] + current_id
                     current_td = self.driver.find_element_by_id(
@@ -619,9 +620,20 @@ class Ordering(object):
                             if name in self.passenger_list:  # 判断名字是否与之前输入的名字重合
                                 passanger_label.click()  # 执行点击选中操作
                         # 选择所需要的座席
-                        seat_labels = self.driver.find_elements_by_xpath(".//tbody[@id = 'ticketInfo_id']/tr/td[3]/select/option[@value = '%s']" % self.seat_codes[self.seat_chosed])
+                        seat_labels = self.driver.find_elements_by_xpath(
+                            ".//tbody[@id = 'ticketInfo_id']/tr/td[3]/select/option[@value = '%s']" % self.seat_codes[self.seat_chosed])
                         for seat_label in seat_labels:  # 遍历所有的label标签
                             seat_label.click()
+                        if self.seat_chosed == '硬卧':
+                            seat_labels = self.driver.find_elements_by_xpath(
+                                ".//tbody[@id = 'ticketInfo_id']/tr/td[3]/select/option[@value = '%s']" % self.seat_codes['二等卧'])
+                            for seat_label in seat_labels:  # 遍历所有的label标签
+                                seat_label.click()
+                        elif self.seat_chosed == '软卧':
+                            seat_labels = self.driver.find_elements_by_xpath(
+                                ".//tbody[@id = 'ticketInfo_id']/tr/td[3]/select/option[@value = '%s']" % self.seat_codes['一等卧'])
+                            for seat_label in seat_labels:  # 遍历所有的label标签
+                                seat_label.click()
                         # 获取提交订单的按钮
                         submitBotton = self.driver.find_element_by_id(
                             'submitOrder_id')
